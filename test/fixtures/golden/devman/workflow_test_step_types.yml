@@ -1,0 +1,17 @@
+name: test_step_types
+description: Verifying polymorphic steps
+steps:
+  - id: step_1
+    type: prompt
+    template: some_template
+    llm: claude
+    
+  - id: step_2
+    type: transform
+    op: uppercase
+    input: "{{step_1.output}}"
+    
+  - id: step_3
+    type: done
+    output: 
+      final: "{{step_2.output}}"

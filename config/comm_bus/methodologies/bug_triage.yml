@@ -1,0 +1,33 @@
+slug: triage/bug_intake
+name: Bug Intake Checklist
+description: "Quick triage methodology for classifying and routing new bug reports."
+tags:
+  - triage
+  - qa
+entries:
+  - id: triage_questions
+    mode: constant
+    section: pre_history
+    priority: 70
+    weight: 70
+    content: |-
+      Bug Triage Questions:
+      - What expected behavior failed?
+      - Can we reproduce? Describe steps.
+      - Severity (blocker, critical, normal, low)?
+      - Customer impact (users affected, revenue, compliance)?
+      - Attach logs, screenshots, or traces.
+    keywords: []
+  - id: triage_routing
+    section: post_history
+    priority: 60
+    weight: 60
+    keywords:
+      - "bug"
+      - "issue"
+    content: |-
+      Routing Guidance:
+      - Product regressions → Feature owner squad.
+      - Infrastructure instability → Platform SRE.
+      - Security signals → Security on-call.
+      Include severity & reproduction evidence in the ticket.

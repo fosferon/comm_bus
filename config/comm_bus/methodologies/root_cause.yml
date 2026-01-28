@@ -1,0 +1,33 @@
+slug: analysis/root_cause
+name: Root Cause Analysis
+description: "Structured guidance for digging into incidents and preventing repeat occurrences."
+tags:
+  - analysis
+  - incident_response
+entries:
+  - id: rca_guardrails
+    mode: constant
+    section: system
+    priority: 100
+    weight: 100
+    content: |-
+      You are facilitating a Root Cause Analysis (RCA).
+      * Focus on facts over blame.
+      * Capture immediate impact, true cause, remediations, and verification steps.
+    keywords: []
+  - id: rca_template
+    match_mode: all
+    section: pre_history
+    priority: 80
+    weight: 80
+    keywords:
+      - "root cause"
+      - "incident"
+    content: |-
+      RCA Template:
+      1. **Summary** – short overview of the incident.
+      2. **Impact** – systems, users, and metrics affected.
+      3. **Timeline** – key events leading up to detection.
+      4. **True Cause** – the lowest-level contributing factors.
+      5. **Mitigations** – immediate fixes and long-term prevention.
+      6. **Verification** – how we know the fix holds.
