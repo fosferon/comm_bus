@@ -5,7 +5,7 @@ defmodule CommBus.MixProject do
     [
       app: :comm_bus,
       version: "0.1.0",
-      elixir: "~> 1.17",
+      elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
 
@@ -33,13 +33,13 @@ defmodule CommBus.MixProject do
     [
       {:bbmustache, "~> 1.12"},
       {:ex_mustache, "~> 0.2.0"},
-      {:yaml_elixir, ">= 2.11.0 and < 3.0.0"},
+      {:yaml_elixir, "~> 2.12"},
       {:file_system, "~> 1.1"},
       {:alf, "~> 0.12"},
-      {:ecto, "~> 3.11"},
-      {:telemetry_metrics, "~> 0.6"},
-      {:stream_data, "~> 0.6", only: :test},
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false}
+      {:ecto, "~> 3.13"},
+      {:telemetry_metrics, "~> 1.1"},
+      {:stream_data, "~> 1.2", only: :test},
+      {:ex_doc, "~> 0.40", only: :dev, runtime: false}
     ]
   end
 
