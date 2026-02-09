@@ -25,4 +25,12 @@ comm_bus-*.tar
 # Temporary files, for example, from tests.
 /tmp/
 .codex
+.claude/
+.env
+.env.*
 **/.DS_Store
+
+# Internal assets and agent docs
+/_assets/
+/_agents/
+**/CLAUDE.md
