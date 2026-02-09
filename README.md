@@ -8,7 +8,7 @@
 - **Token Budget Management** - Priority-based greedy fitting with intelligent section allocation
 - **Template Engine** - Mustache support (BbMustache/ExMustache) with YAML frontmatter parsing
 - **Prompt Catalog** - Persistent_term caching with FileSystem watching for hot reloading
-- **Storage Adapters** - In-memory, Ecto, DevMan (SQLite), HuMan (PostgreSQL)
+- **Storage Adapters** - In-memory and Ecto, with a behaviour for custom adapters
 - **Methodologies** - YAML-based curated prompt packs for reusable workflows
 - **Protocol Pipeline** - ALF-based assembly with llm_core integration
 - **Mix Tasks** - CLI utilities for entry inspection, budget simulation, and testing
@@ -21,10 +21,12 @@ Add `comm_bus` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:comm_bus, "~> 0.1.0"}
+    {:comm_bus, git: "https://github.com/fosferon/comm_bus.git"}
   ]
 end
 ```
+
+> **Note:** CommBus is not yet published on Hex. Use the git dependency for now.
 
 ## Quick Start
 
@@ -293,21 +295,7 @@ config :comm_bus,
   repo: MyApp.Repo
 ```
 
-#### DevMan Adapter (SQLite)
-
-```elixir
-config :comm_bus,
-  storage: CommBus.Storage.Devman,
-  db_path: Path.expand("~/.devman/devman.db")
-```
-
-#### HuMan Adapter (PostgreSQL)
-
-```elixir
-config :comm_bus,
-  storage: CommBus.Storage.Human,
-  repo: HuMan.Repo
-```
+You can implement custom storage adapters by adopting the `CommBus.Storage` behaviour.
 
 ## Architecture
 
@@ -454,17 +442,8 @@ open doc/index.html
 
 ## Related Projects
 
-- **[llm_core](https://hex.pm/packages/llm_core)** - LLM provider abstraction (sits below CommBus)
-- **DevMan** - CLI workflow orchestration (consumer of CommBus)
-- **HuMan** - Reasoning infrastructure (consumer of CommBus)
+- **[llm_core](https://github.com/fosferon/llm_core)** - LLM provider abstraction (sits below CommBus)
 
 ## License
 
-MIT
-
-## Links
-
-- [Hex Package](https://hex.pm/packages/comm_bus)
-- [Documentation](https://hexdocs.pm/comm_bus)
-- [GitHub](https://github.com/fosferon/comm_bus)
-- [Changelog](https://github.com/fosferon/comm_bus/blob/main/CHANGELOG.md)
+MIT — see [LICENSE](LICENSE).
