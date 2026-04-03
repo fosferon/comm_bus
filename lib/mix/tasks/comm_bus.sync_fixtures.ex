@@ -29,6 +29,14 @@ defmodule Mix.Tasks.CommBus.SyncFixtures do
     * `--devman` - Path to DevMan prompts directory
   """
 
+  @doc """
+  Synchronizes prompt files from external project directories into the
+  golden test fixture directory, optionally cleaning existing fixtures first.
+
+  ## Parameters
+
+    - `args` — Command-line argument list; supports `--clean`, `--human`, `--devman`.
+  """
   @impl true
   def run(args) do
     {opts, _rest, _} =

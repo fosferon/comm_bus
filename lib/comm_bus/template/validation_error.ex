@@ -10,5 +10,7 @@ defmodule CommBus.Template.ValidationError do
 
   defstruct [:path, :field, :message, :line]
 
+  @doc "Returns the human-readable validation error message string."
+  @spec message(t()) :: String.t()
   def message(%__MODULE__{message: msg}), do: msg
 end

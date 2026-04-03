@@ -23,24 +23,31 @@ defmodule CommBus.Storage.HuMan do
 
   alias CommBus.Storage.EctoAdapter
 
+  @doc "Persists an entry via HuMan's configured PostgreSQL repo and schema."
   @impl true
   def store_entry(entry), do: EctoAdapter.store_entry(entry, config())
 
+  @doc "Lists entries from HuMan's database, applying optional keyword filters."
   @impl true
   def list_entries(opts), do: EctoAdapter.list_entries(opts, config())
 
+  @doc "Fetches a single entry by ID from HuMan's database."
   @impl true
   def get_entry(id), do: EctoAdapter.get_entry(id, config())
 
+  @doc "Deletes an entry by ID from HuMan's database."
   @impl true
   def delete_entry(id), do: EctoAdapter.delete_entry(id, config())
 
+  @doc "Persists a conversation via HuMan's configured PostgreSQL repo."
   @impl true
   def store_conversation(conversation), do: EctoAdapter.store_conversation(conversation, config())
 
+  @doc "Loads a conversation by ID from HuMan's database."
   @impl true
   def load_conversation(id), do: EctoAdapter.load_conversation(id, config())
 
+  @doc "Updates a conversation record in HuMan's database."
   @impl true
   def update_conversation(id, updates), do: EctoAdapter.update_conversation(id, updates, config())
 

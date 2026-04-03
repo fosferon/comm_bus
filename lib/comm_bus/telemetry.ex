@@ -9,12 +9,15 @@ defmodule CommBus.Telemetry do
   @plan_stop_event [:comm_bus, :context, :plan, :stop]
 
   @doc "Event emitted after each plan with inclusion/budget measurements."
+  @spec metrics_event() :: [atom()]
   def metrics_event, do: @metrics_event
 
   @doc "Telemetry span stop event for context planning."
+  @spec plan_stop_event() :: [atom()]
   def plan_stop_event, do: @plan_stop_event
 
   @doc "Return Telemetry.Metrics definitions for common CommBus metrics."
+  @spec metrics([atom()]) :: list()
   def metrics(prefix \\ [:comm_bus]) do
     [
       summary(metric_name(prefix, [:context, :metrics, :inclusion_rate]),

@@ -2,10 +2,30 @@ defmodule CommBus.Prompts.Runtime do
   @moduledoc false
   use GenServer
 
+  @doc """
+  Starts the prompt runtime GenServer, which loads prompts from disk on init.
+
+  ## Parameters
+
+    - `opts` — Keyword options: `:root` (prompt directory), `:schema` (validation schema).
+
+  ## Returns
+
+  `{:ok, pid}` on success.
+  """
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
+  @doc """
+  Triggers an asynchronous reload of all prompts from disk.
+
+  ## Returns
+
+  `:ok`
+  """
+  @spec reload() :: :ok
   def reload, do: GenServer.cast(__MODULE__, :reload)
 
   @impl true

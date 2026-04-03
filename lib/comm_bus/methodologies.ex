@@ -11,11 +11,35 @@ defmodule CommBus.Methodologies do
   @cache_key {__MODULE__, :catalog}
   @default_root Path.expand("config/comm_bus/methodologies", File.cwd!())
 
+  @doc """
+  Returns the configured methodology root directory, falling back to
+  `config/comm_bus/methodologies` relative to the project root.
+
+  ## Returns
+
+  A string path to the methodology directory.
+  """
   @spec default_root() :: String.t()
   def default_root do
     Application.get_env(:comm_bus, :methodology_root, @default_root)
   end
 
+  @doc """
+  Loads all methodology YAML files from the configured root directory, validates
+  their schema, builds entry structs, and caches the catalog in `:persistent_term`.
+
+  ## Parameters
+
+    - `opts` — Keyword options: `:root` (directory path override).
+
+  ## Returns
+
+  A map of methodology slugs to `%CommBus.Methodology{}` structs.
+
+  ## Raises
+
+  Raises on invalid YAML or missing required fields.
+  """
   @spec load_from_disk!(keyword()) :: %{String.t() => Methodology.t()}
   def load_from_disk!(opts \\ []) do
     root = Keyword.get(opts, :root, default_root())
@@ -32,6 +56,14 @@ defmodule CommBus.Methodologies do
     catalog
   end
 
+  @doc """
+  Returns all cached methodologies as a list sorted by slug, loading from disk
+  if not yet cached.
+
+  ## Returns
+
+  A list of `%CommBus.Methodology{}` structs.
+  """
   @spec list() :: [Methodology.t()]
   def list do
     catalog()
@@ -39,6 +71,21 @@ defmodule CommBus.Methodologies do
     |> Enum.sort_by(& &1.slug)
   end
 
+  @doc """
+  Fetches a cached methodology by slug, raising if not found.
+
+  ## Parameters
+
+    - `slug` — The methodology slug string.
+
+  ## Returns
+
+  A `%CommBus.Methodology{}` struct.
+
+  ## Raises
+
+  Raises `ArgumentError` if no methodology matches the given slug.
+  """
   @spec get!(String.t()) :: Methodology.t()
   def get!(slug) do
     case Map.fetch(catalog(), slug) do
@@ -47,6 +94,22 @@ defmodule CommBus.Methodologies do
     end
   end
 
+  @doc """
+  Resolves methodology references into a flat list of entries.
+
+  Accepts a single reference string or a list of references. Each reference
+  is either a bare slug (returns all entries) or a `"slug#entry_id"` fragment
+  (returns only the matching entry).
+
+  ## Parameters
+
+    - `refs` — A string like `"bug_triage"` or `"bug_triage#severity-check"`,
+      or a list of such strings.
+
+  ## Returns
+
+  A list of `%CommBus.Entry{}` structs from the referenced methodologies.
+  """
   @spec entries_for(String.t() | [String.t()]) :: [Entry.t()]
   def entries_for(refs) when is_list(refs) do
     refs
@@ -63,9 +126,24 @@ defmodule CommBus.Methodologies do
     end
   end
 
+  @doc """
+  Reloads all methodologies from disk, refreshing the `:persistent_term` cache.
+
+  ## Returns
+
+  A map of methodology slugs to `%CommBus.Methodology{}` structs.
+  """
   @spec reload!() :: %{String.t() => Methodology.t()}
   def reload!, do: load_from_disk!()
 
+  @doc """
+  Erases the methodology cache from `:persistent_term`, forcing a reload on
+  the next access.
+
+  ## Returns
+
+  `:ok`
+  """
   @spec clear_cache!() :: :ok
   def clear_cache! do
     :persistent_term.erase(@cache_key)

@@ -3,10 +3,21 @@ defmodule CommBus.Template.Preprocessor do
 
   alias CommBus.Template.RenderError
 
+  @doc """
+  Normalizes variable type declarations into a map of name → type string.
+  Accepts `nil`, a map, or a list of variable declarations.
+  """
+  @spec resolve_types(nil | map() | list()) :: map()
   def resolve_types(nil), do: %{}
   def resolve_types(types) when is_map(types), do: types
   def resolve_types(types) when is_list(types), do: variable_types(types)
 
+  @doc """
+  Coerces variable values to their declared types, returning an updated variable
+  map or an error if coercion fails.
+  """
+  @spec coerce_variables(map(), map(), String.t() | nil) ::
+          {:ok, map()} | {:error, CommBus.Template.RenderError.t()}
   def coerce_variables(vars, types, template_name) when is_map(vars) do
     Enum.reduce_while(types, {:ok, vars}, fn {name, type}, {:ok, acc} ->
       case Map.fetch(acc, name) do
@@ -32,6 +43,11 @@ defmodule CommBus.Template.Preprocessor do
     end)
   end
 
+  @doc """
+  Rewrites `{{var | default: \"fallback\"}}` patterns into Mustache section/inverted-section
+  pairs, returning the processed template and the list of defaulted variable keys.
+  """
+  @spec apply_defaults(String.t()) :: {String.t(), [String.t()]}
   def apply_defaults(template) do
     regex = ~r/\{\{\s*([a-zA-Z0-9_-]+)\s*\|\s*default:\s*"([^"]+)"\s*\}\}/
 
@@ -45,12 +61,22 @@ defmodule CommBus.Template.Preprocessor do
     {processed, keys}
   end
 
+  @doc """
+  Transforms `{{#if var}}`, `{{#unless var}}`, and `{{#each var}}` control tags
+  into native Mustache `{{#var}}`, `{{^var}}`, and `{{#var}}` syntax.
+  """
+  @spec rewrite_control_tags(String.t()) :: String.t()
   def rewrite_control_tags(template) do
     tokens = Regex.split(~r/(\{\{[^}]+\}\})/, template, include_captures: true, trim: false)
     {out, _stack} = Enum.reduce(tokens, {[], []}, &rewrite_token/2)
     Enum.reverse(out) |> IO.iodata_to_binary()
   end
 
+  @doc """
+  Augments list values in the variable map with `@index` and `this` keys for
+  each element, enabling Mustache iteration.
+  """
+  @spec decorate_lists(map()) :: map()
   def decorate_lists(vars) do
     Enum.reduce(vars, vars, fn
       {k, v}, acc when is_list(v) ->
@@ -74,6 +100,12 @@ defmodule CommBus.Template.Preprocessor do
     end)
   end
 
+  @doc """
+  Recursively resolves `{{> partial_name}}` tags in a template, inlining partial
+  bodies up to a maximum depth.
+  """
+  @spec resolve_partials(String.t(), keyword(), non_neg_integer(), [String.t()], pos_integer()) ::
+          {String.t(), [String.t()]}
   def resolve_partials(template, opts, depth, loaded, max_depth) do
     if depth >= max_depth do
       raise %RenderError{type: :max_depth_exceeded, message: "Max partial depth exceeded"}
@@ -113,6 +145,11 @@ defmodule CommBus.Template.Preprocessor do
     {result, loaded}
   end
 
+  @doc """
+  Extracts unique variable names referenced in a Mustache template, excluding
+  partial references and section/inverted-section delimiters.
+  """
+  @spec extract_variables(String.t()) :: [String.t()]
   def extract_variables(template) do
     regex = ~r/\{\{\s*([#^\/>]?)\s*([a-zA-Z0-9_@-]+)(?:\s*\|[^}]*)?\s*\}\}/
 
@@ -128,6 +165,10 @@ defmodule CommBus.Template.Preprocessor do
     |> Enum.uniq()
   end
 
+  @doc """
+  Recursively converts all map keys to strings, handling nested maps and lists.
+  """
+  @spec stringify_keys(map()) :: map()
   def stringify_keys(map) when is_map(map) do
     map
     |> Enum.map(fn {k, v} -> {to_string(k), stringify_value(v)} end)

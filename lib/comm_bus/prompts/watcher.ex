@@ -4,6 +4,20 @@ defmodule CommBus.Prompts.Watcher do
   use GenServer
   require Logger
 
+  @doc """
+  Starts the file system watcher GenServer that monitors the prompt directory
+  for changes and triggers automatic prompt reloads with debouncing.
+
+  ## Parameters
+
+    - `opts` — Keyword options: `:root` (prompt directory), `:schema` (validation schema),
+      `:debounce_ms` (debounce interval, default 150ms).
+
+  ## Returns
+
+  `{:ok, pid}` on success.
+  """
+  @spec start_link(keyword()) :: GenServer.on_start()
   def start_link(opts \\ []) do
     GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end

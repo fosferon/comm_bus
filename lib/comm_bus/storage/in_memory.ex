@@ -15,6 +15,17 @@ defmodule CommBus.Storage.InMemory do
   @entries_table :comm_bus_entries
   @conversations_table :comm_bus_conversations
 
+  @doc """
+  Stores an entry in the ETS table, auto-generating an ID if not present.
+
+  ## Parameters
+
+    - `entry` — A `%CommBus.Entry{}` struct.
+
+  ## Returns
+
+  `{:ok, %CommBus.Entry{}}` with the (possibly auto-generated) ID.
+  """
   @impl true
   def store_entry(%Entry{} = entry) do
     ensure_tables()
@@ -23,6 +34,18 @@ defmodule CommBus.Storage.InMemory do
     {:ok, entry}
   end
 
+  @doc """
+  Lists all entries from the ETS table, applying optional keyword filters
+  for `:enabled`, `:mode`, and `:keywords`.
+
+  ## Parameters
+
+    - `opts` — Keyword filters.
+
+  ## Returns
+
+  `{:ok, [%CommBus.Entry{}]}`.
+  """
   @impl true
   def list_entries(opts) when is_list(opts) do
     ensure_tables()
@@ -34,6 +57,17 @@ defmodule CommBus.Storage.InMemory do
     |> then(&{:ok, &1})
   end
 
+  @doc """
+  Looks up a single entry by ID in the ETS table.
+
+  ## Parameters
+
+    - `id` — The entry identifier.
+
+  ## Returns
+
+  `{:ok, %CommBus.Entry{}}` if found, or `{:error, :not_found}`.
+  """
   @impl true
   def get_entry(id) do
     ensure_tables()
@@ -44,6 +78,17 @@ defmodule CommBus.Storage.InMemory do
     end
   end
 
+  @doc """
+  Removes an entry from the ETS table by ID.
+
+  ## Parameters
+
+    - `id` — The entry identifier.
+
+  ## Returns
+
+  `:ok`.
+  """
   @impl true
   def delete_entry(id) do
     ensure_tables()
@@ -51,6 +96,17 @@ defmodule CommBus.Storage.InMemory do
     :ok
   end
 
+  @doc """
+  Stores a conversation in the ETS table, auto-generating an ID if not present.
+
+  ## Parameters
+
+    - `conversation` — A `%CommBus.Conversation{}` struct.
+
+  ## Returns
+
+  `{:ok, %CommBus.Conversation{}}` with the (possibly auto-generated) ID.
+  """
   @impl true
   def store_conversation(%Conversation{} = conversation) do
     ensure_tables()
@@ -59,6 +115,17 @@ defmodule CommBus.Storage.InMemory do
     {:ok, conversation}
   end
 
+  @doc """
+  Looks up a conversation by ID in the ETS table.
+
+  ## Parameters
+
+    - `id` — The conversation identifier.
+
+  ## Returns
+
+  `{:ok, %CommBus.Conversation{}}` if found, or `{:error, :not_found}`.
+  """
   @impl true
   def load_conversation(id) do
     ensure_tables()
@@ -69,6 +136,19 @@ defmodule CommBus.Storage.InMemory do
     end
   end
 
+  @doc """
+  Updates an existing conversation in the ETS table, merging the given updates
+  into the existing struct.
+
+  ## Parameters
+
+    - `id` — The conversation identifier.
+    - `updates` — A map of fields to update.
+
+  ## Returns
+
+  `{:ok, %CommBus.Conversation{}}` on success, or `{:error, :not_found}`.
+  """
   @impl true
   def update_conversation(id, updates) when is_map(updates) do
     ensure_tables()

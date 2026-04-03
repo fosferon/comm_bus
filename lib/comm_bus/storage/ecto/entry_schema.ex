@@ -38,6 +38,7 @@ defmodule CommBus.Storage.Ecto.EntrySchema do
   end
 
   @doc false
+  @spec changeset(Ecto.Schema.t(), map()) :: Ecto.Changeset.t()
   def changeset(entry, attrs) do
     entry
     |> cast(attrs, fields())

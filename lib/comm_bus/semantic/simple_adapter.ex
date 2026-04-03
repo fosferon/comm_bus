@@ -5,6 +5,21 @@ defmodule CommBus.Semantic.SimpleAdapter do
 
   @behaviour CommBus.Semantic.Adapter
 
+  @doc """
+  Computes semantic similarity between a hint string and a text string using
+  Jaccard index over tokenized word sets.
+
+  ## Parameters
+
+    - `_entry` — The entry struct (unused by this adapter).
+    - `hint` — The keyword or hint string.
+    - `text` — The message text to compare against.
+    - `_opts` — Options (unused by this adapter).
+
+  ## Returns
+
+  A float between 0.0 and 1.0 representing the token set overlap.
+  """
   @impl true
   def similarity(_entry, hint, text, _opts) do
     hint_tokens = tokenize(hint)

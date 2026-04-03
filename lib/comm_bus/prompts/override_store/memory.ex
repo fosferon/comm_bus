@@ -3,11 +3,36 @@ defmodule CommBus.Prompts.OverrideStore.Memory do
 
   @behaviour CommBus.Prompts.OverrideStore
 
+  @doc """
+  Starts the in-memory override store backed by an Agent process.
+
+  ## Parameters
+
+    - `opts` — Keyword options: `:name` (process name, defaults to module name).
+
+  ## Returns
+
+  `{:ok, pid}` on success.
+  """
+  @spec start_link(keyword()) :: Agent.on_start()
   def start_link(opts \\ []) do
     name = Keyword.get(opts, :name, __MODULE__)
     Agent.start_link(fn -> [] end, name: name)
   end
 
+  @doc """
+  Stores a new prompt override in the in-memory agent. The override map
+  should contain `:slug`, `:content`, and optionally `:scope`, `:metadata`,
+  `:active`, and `:priority` keys.
+
+  ## Parameters
+
+    - `attrs` — A map of override attributes.
+
+  ## Returns
+
+  `{:ok, normalized_override}` on success.
+  """
   @impl true
   def create_override(attrs) when is_map(attrs) do
     name = Map.get(attrs, :name, __MODULE__)
@@ -17,6 +42,20 @@ defmodule CommBus.Prompts.OverrideStore.Memory do
     {:ok, override}
   end
 
+  @doc """
+  Retrieves the highest-priority active override for the given prompt slug,
+  optionally filtered by scope.
+
+  ## Parameters
+
+    - `slug` — The prompt slug to look up.
+    - `opts` — Keyword options: `:name` (agent name), `:scope` (filter by scope).
+
+  ## Returns
+
+  A map with `:slug`, `:content`, `:scope`, `:metadata`, `:active`, `:priority`
+  keys, or `nil` if no active override exists.
+  """
   @impl true
   def get_active_override(slug, opts \\ []) when is_binary(slug) do
     name = Keyword.get(opts, :name, __MODULE__)
