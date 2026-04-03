@@ -9,6 +9,20 @@ defmodule CommBus.Tokenizer.Simple do
 
   alias CommBus.Message
 
+  @doc """
+  Estimates the token count of a text string using a heuristic word-and-punctuation
+  scan. Splits on word boundaries and counts each alphanumeric run and punctuation
+  character as one token, roughly approximating GPT tokenization.
+
+  ## Parameters
+
+    - `text` — The text string to count tokens for.
+    - `_opts` — Ignored; present for callback conformance.
+
+  ## Returns
+
+  A non-negative integer token count estimate.
+  """
   @impl true
   def count_tokens(text, _opts) when is_binary(text) do
     text
@@ -23,6 +37,19 @@ defmodule CommBus.Tokenizer.Simple do
     end
   end
 
+  @doc """
+  Counts tokens for a conversation message by summing the content token count
+  and a fixed role-based overhead (2 tokens for most roles, 4 for tool messages).
+
+  ## Parameters
+
+    - `message` — A `%CommBus.Message{}` struct.
+    - `opts` — Forwarded to `count_tokens/2`.
+
+  ## Returns
+
+  A non-negative integer representing the estimated token count.
+  """
   @impl true
   def count_message(%Message{} = message, opts) do
     count_tokens(message.content, opts) + role_overhead(message.role)

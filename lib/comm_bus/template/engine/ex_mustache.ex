@@ -7,6 +7,22 @@ defmodule CommBus.Template.Engine.ExMustache do
 
   @max_partial_depth 10
 
+  @doc """
+  Renders a Mustache template using the ExMustache pure-Elixir library with support
+  for strict mode, type coercion, partial resolution, default values, and control
+  tag rewriting.
+
+  ## Parameters
+
+    - `template` — A Mustache template string.
+    - `values` — A map of variable bindings (keys are stringified).
+    - `opts` — Keyword options: `:strict_mode`, `:template_name`, `:types`,
+      `:partials`, `:partials_func`.
+
+  ## Returns
+
+  `{:ok, %RenderResult{}}` on success or `{:error, %RenderError{}}` on failure.
+  """
   @impl true
   def render(template, values, opts \\ []) when is_binary(template) and is_map(values) do
     strict = Keyword.get(opts, :strict_mode, true)

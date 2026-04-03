@@ -8,6 +8,22 @@ defmodule CommBus.Protocol.LlmCoreAdapter do
   alias CommBus.{Assembler, Entry, Message}
   alias CommBus.Protocol.{Context, Packet, SectionRoles}
 
+  @doc """
+  Converts a CommBus assembly context into an llm_core-compatible protocol
+  packet. If the context has no assembly yet, runs `Assembler.assemble_prompt/3`
+  first. Sections are mapped to message roles and empty-content messages are
+  filtered out.
+
+  ## Parameters
+
+    - `context` — A `%CommBus.Protocol.Context{}` struct with conversation,
+      entries, and optionally a pre-computed assembly.
+
+  ## Returns
+
+  `{:ok, %CommBus.Protocol.Packet{}}` with messages, sections, included/excluded
+  entries, token usage, and adapter metadata.
+  """
   @impl true
   def assemble(%Context{assembly: nil} = context) do
     assembly =

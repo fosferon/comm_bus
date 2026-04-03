@@ -7,6 +7,24 @@ defmodule CommBus.Template.Validator do
 
   @type error_list :: [ValidationError.t()]
 
+  @doc """
+  Validates prompt frontmatter against the expected schema, checking required
+  fields, variable declarations, and optionally variable consistency between
+  declarations and template usage.
+
+  ## Parameters
+
+    - `frontmatter` — Parsed YAML frontmatter as a map.
+    - `body` — The template body string.
+    - `path` — Optional file path for error context.
+    - `opts` — Keyword options:
+      - `:schema` — Validation schema (`:devman`, `:human`, `:flex`).
+      - `:validate_variables` — Whether to check declaration/usage consistency.
+
+  ## Returns
+
+  `{:ok, :prompt}` if valid, or `{:error, [%ValidationError{}]}` with all errors.
+  """
   @spec validate_prompt(map(), String.t(), String.t() | nil, keyword()) ::
           {:ok, :prompt} | {:error, error_list()}
   def validate_prompt(frontmatter, body, path \\ nil, opts \\ [])
@@ -30,6 +48,21 @@ defmodule CommBus.Template.Validator do
     if errors == [], do: {:ok, :prompt}, else: {:error, errors}
   end
 
+  @doc """
+  Validates a `%Prompt{}` struct by attempting a strict-mode render with the
+  provided variables, verifying that the template can be fully rendered.
+
+  ## Parameters
+
+    - `prompt` — A `%CommBus.Template.Prompt{}` struct.
+    - `variables` — A map of variable bindings to test with.
+    - `opts` — Keyword options forwarded to the template engine.
+
+  ## Returns
+
+  `{:ok, %ValidationResult{}}` with required variables and partials, or
+  `{:error, %RenderError{}}` if the render fails.
+  """
   @spec validate_prompt_struct(Prompt.t(), map(), keyword()) ::
           {:ok, ValidationResult.t()} | {:error, RenderError.t()}
   def validate_prompt_struct(%Prompt{} = prompt, variables \\ %{}, opts \\ []) do

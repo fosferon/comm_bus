@@ -22,6 +22,19 @@ defmodule CommBus.Storage.EctoAdapter do
 
   # -- Entry operations ----------------------------------------------------
 
+  @doc """
+  Persists a `%CommBus.Entry{}` struct via the configured Ecto repo, upserting
+  the record through the entry schema's changeset.
+
+  ## Parameters
+
+    - `entry` — A `%CommBus.Entry{}` struct to persist.
+    - `config` — Adapter config map with `:repo`, `:entry_schema`, `:conversation_schema`.
+
+  ## Returns
+
+  `{:ok, %CommBus.Entry{}}` on success or `{:error, reason}` on failure.
+  """
   @spec store_entry(Entry.t(), config()) :: {:ok, Entry.t()} | {:error, term()}
   def store_entry(%Entry{} = entry, config) do
     with {:ok, record} <- upsert(entry, config, :entry_schema) do
@@ -29,6 +42,19 @@ defmodule CommBus.Storage.EctoAdapter do
     end
   end
 
+  @doc """
+  Loads all entries from the database via the configured repo and schema,
+  applying optional filters.
+
+  ## Parameters
+
+    - `opts` — Keyword filters: `:enabled`, `:mode`, `:keywords`.
+    - `config` — Adapter config map with `:repo`, `:entry_schema`, `:conversation_schema`.
+
+  ## Returns
+
+  `{:ok, [%CommBus.Entry{}]}` with the matching entries.
+  """
   @spec list_entries(keyword(), config()) :: {:ok, [Entry.t()]} | {:error, term()}
   def list_entries(opts, config) do
     entries =
@@ -40,6 +66,18 @@ defmodule CommBus.Storage.EctoAdapter do
     {:ok, entries}
   end
 
+  @doc """
+  Fetches a single entry by ID from the database.
+
+  ## Parameters
+
+    - `id` — The entry identifier.
+    - `config` — Adapter config map.
+
+  ## Returns
+
+  `{:ok, %CommBus.Entry{}}` if found, or `{:error, :not_found}`.
+  """
   @spec get_entry(term(), config()) :: {:ok, Entry.t()} | {:error, :not_found}
   def get_entry(id, config) do
     with {:ok, record} <- repo_get(repo(config), entry_schema(config), id) do
@@ -47,6 +85,18 @@ defmodule CommBus.Storage.EctoAdapter do
     end
   end
 
+  @doc """
+  Deletes an entry by ID from the database.
+
+  ## Parameters
+
+    - `id` — The entry identifier.
+    - `config` — Adapter config map.
+
+  ## Returns
+
+  `:ok` on success, or `{:error, reason}` on failure.
+  """
   @spec delete_entry(term(), config()) :: :ok | {:error, term()}
   def delete_entry(id, config) do
     with {:ok, record} <- repo_get(repo(config), entry_schema(config), id) do
@@ -56,6 +106,18 @@ defmodule CommBus.Storage.EctoAdapter do
 
   # -- Conversation operations --------------------------------------------
 
+  @doc """
+  Persists a `%CommBus.Conversation{}` struct via the configured Ecto repo.
+
+  ## Parameters
+
+    - `conversation` — A `%CommBus.Conversation{}` struct to persist.
+    - `config` — Adapter config map.
+
+  ## Returns
+
+  `{:ok, %CommBus.Conversation{}}` on success or `{:error, reason}` on failure.
+  """
   @spec store_conversation(Conversation.t(), config()) ::
           {:ok, Conversation.t()} | {:error, term()}
   def store_conversation(%Conversation{} = conversation, config) do
@@ -64,6 +126,18 @@ defmodule CommBus.Storage.EctoAdapter do
     end
   end
 
+  @doc """
+  Fetches a conversation by ID from the database.
+
+  ## Parameters
+
+    - `id` — The conversation identifier.
+    - `config` — Adapter config map.
+
+  ## Returns
+
+  `{:ok, %CommBus.Conversation{}}` if found, or `{:error, :not_found}`.
+  """
   @spec load_conversation(term(), config()) :: {:ok, Conversation.t()} | {:error, :not_found}
   def load_conversation(id, config) do
     with {:ok, record} <- repo_get(repo(config), conversation_schema(config), id) do
@@ -71,6 +145,19 @@ defmodule CommBus.Storage.EctoAdapter do
     end
   end
 
+  @doc """
+  Updates an existing conversation record with the given attributes.
+
+  ## Parameters
+
+    - `id` — The conversation identifier.
+    - `updates` — A map of fields to update.
+    - `config` — Adapter config map.
+
+  ## Returns
+
+  `{:ok, %CommBus.Conversation{}}` on success or `{:error, reason}` on failure.
+  """
   @spec update_conversation(term(), map(), config()) :: {:ok, Conversation.t()} | {:error, term()}
   def update_conversation(id, updates, config) when is_map(updates) do
     with {:ok, record} <- repo_get(repo(config), conversation_schema(config), id) do

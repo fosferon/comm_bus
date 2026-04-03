@@ -24,6 +24,16 @@ defmodule Mix.Tasks.CommBus.Simulate do
 
   alias CommBus.{CLI, Context, Methodologies}
 
+  @doc """
+  Runs a full CommBus assembly simulation using YAML fixture files for the
+  conversation and entries, printing the plan with included/excluded entries,
+  token usage, and exclusion reasons.
+
+  ## Parameters
+
+    - `args` — Command-line argument list; requires `--conversation`.
+  """
+  @spec run([String.t()]) :: :ok
   def run(args) do
     Mix.Task.run("app.start")
 

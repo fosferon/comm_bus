@@ -3,6 +3,20 @@ defmodule CommBus.Template.Loader do
 
   alias CommBus.Template.{Prompt, ValidationError, Validator}
 
+  @doc """
+  Reads a prompt file from disk, parses its YAML frontmatter, validates the
+  schema, and returns a `%Prompt{}` struct.
+
+  ## Parameters
+
+    - `path` — Absolute or relative file path to a Markdown prompt file.
+    - `opts` — Keyword options: `:schema` (`:devman`, `:human`, `:flex`),
+      `:root` (prompt root directory for slug derivation).
+
+  ## Returns
+
+  `{:ok, %Prompt{}}` on success or `{:error, [%ValidationError{}]}` on failure.
+  """
   @spec load_prompt_file(String.t(), keyword()) ::
           {:ok, Prompt.t()} | {:error, [ValidationError.t()]}
   def load_prompt_file(path, opts \\ []) when is_binary(path) do
@@ -22,6 +36,20 @@ defmodule CommBus.Template.Loader do
     end
   end
 
+  @doc """
+  Parses a prompt from a raw string containing YAML frontmatter delimited by
+  `---`, validates the schema, and returns a `%Prompt{}` struct.
+
+  ## Parameters
+
+    - `content` — The full prompt string including YAML frontmatter.
+    - `path` — Optional file path for error reporting and slug derivation.
+    - `opts` — Keyword options: `:schema`, `:root`.
+
+  ## Returns
+
+  `{:ok, %Prompt{}}` on success or `{:error, [%ValidationError{}]}` on failure.
+  """
   @spec load_prompt_string(String.t(), String.t() | nil, keyword()) ::
           {:ok, Prompt.t()} | {:error, [ValidationError.t()]}
   def load_prompt_string(content, path \\ nil, opts \\ []) when is_binary(content) do
@@ -40,6 +68,20 @@ defmodule CommBus.Template.Loader do
     end
   end
 
+  @doc """
+  Splits a prompt string on `---` delimiters and parses the YAML frontmatter
+  into a map.
+
+  ## Parameters
+
+    - `content` — The full prompt string.
+    - `path` — Optional file path for error reporting.
+
+  ## Returns
+
+  `{:ok, frontmatter_map, body_string}` on success or
+  `{:error, [%ValidationError{}]}` on failure.
+  """
   @spec parse_frontmatter(String.t(), String.t() | nil) ::
           {:ok, map(), String.t()} | {:error, [ValidationError.t()]}
   def parse_frontmatter(content, path \\ nil) when is_binary(content) do
@@ -83,6 +125,20 @@ defmodule CommBus.Template.Loader do
     end
   end
 
+  @doc """
+  Recursively loads all `.md` prompt files under the given directory, returning
+  a list of validated `%Prompt{}` structs.
+
+  ## Parameters
+
+    - `root` — The root directory to scan for prompt files.
+    - `opts` — Keyword options: `:schema`, `:root`.
+
+  ## Returns
+
+  `{:ok, [%Prompt{}]}` if all files pass validation, or
+  `{:error, [%ValidationError{}]}` collecting errors from all invalid files.
+  """
   @spec load_prompts(String.t(), keyword()) ::
           {:ok, [Prompt.t()]} | {:error, [ValidationError.t()]}
   def load_prompts(root, opts \\ []) when is_binary(root) do

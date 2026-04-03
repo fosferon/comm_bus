@@ -33,6 +33,28 @@ defmodule CommBus.Context do
     defstruct entry: nil, reason: nil, details: %{}
   end
 
+  @doc """
+  Produces a comprehensive assembly plan from a conversation and entries,
+  including budget allocations, match diagnostics, and exclusion reasons.
+
+  Orchestrates the full assembly pipeline: methodology resolution, entry
+  partitioning, keyword matching, deduplication, token annotation, budget
+  fitting, and section positioning. Emits telemetry events for observability.
+
+  ## Parameters
+
+    - `conversation` — A `%CommBus.Conversation{}` with message history.
+    - `entries` — List of `%CommBus.Entry{}` structs to consider.
+    - `opts` — Keyword options:
+      - `:budget` — Budget configuration map (see `CommBus.Budget.Planner`).
+      - `:methodologies` — List of methodology refs to include.
+      - `:scan_depth`, `:recency_decay` — Matching options.
+
+  ## Returns
+
+  A `%CommBus.Context.Plan{}` struct with sections, included/excluded entries,
+  token usage, match diagnostics, and exclusion reasons.
+  """
   @spec plan(Conversation.t(), [Entry.t()], keyword()) :: Plan.t()
   def plan(%Conversation{} = conversation, entries, opts \\ []) do
     :telemetry.span(@telemetry_event, %{system_time: System.system_time()}, fn ->

@@ -8,6 +8,15 @@ defmodule Mix.Tasks.CommBus.Budget do
   alias CommBus.Budget.Planner
   alias CommBus.CLI
 
+  @doc """
+  Executes the budget inspection task, computing section allocations from the
+  given total budget and printing the plan.
+
+  ## Parameters
+
+    - `args` — Command-line argument list; requires `--total`.
+  """
+  @spec run([String.t()]) :: :ok
   def run(args) do
     {opts, _, _} = OptionParser.parse(args, switches: @switches)
 

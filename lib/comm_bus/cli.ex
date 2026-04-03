@@ -4,6 +4,7 @@ defmodule CommBus.CLI do
   alias CommBus.{Conversation, Entry, Message, Storage}
 
   @doc "Resolve an entry store module from CLI opts or application env."
+  @spec resolve_entry_store(keyword()) :: module()
   def resolve_entry_store(opts) do
     opts
     |> Keyword.get(:store)
@@ -12,6 +13,7 @@ defmodule CommBus.CLI do
   end
 
   @doc "Resolve a conversation store module from CLI opts or application env."
+  @spec resolve_conversation_store(keyword()) :: module()
   def resolve_conversation_store(opts) do
     opts
     |> Keyword.get(:store)
@@ -20,6 +22,7 @@ defmodule CommBus.CLI do
   end
 
   @doc "Load a conversation struct from a YAML file."
+  @spec conversation_from_file!(String.t()) :: CommBus.Conversation.t()
   def conversation_from_file!(path) do
     path
     |> load_yaml!()
@@ -27,6 +30,7 @@ defmodule CommBus.CLI do
   end
 
   @doc "Load entry structs from a YAML file (list or wrapped under `entries`)."
+  @spec entries_from_file!(String.t()) :: [CommBus.Entry.t()]
   def entries_from_file!(path) do
     path
     |> load_yaml!()
@@ -35,6 +39,7 @@ defmodule CommBus.CLI do
   end
 
   @doc "Parse section ratio CLI arguments such as \"system=0.2\"."
+  @spec parse_section_ratios(list()) :: map()
   def parse_section_ratios(values) when is_list(values) do
     Enum.reduce(values, %{}, fn raw, acc ->
       case String.split(raw, "=", parts: 2) do
@@ -53,6 +58,7 @@ defmodule CommBus.CLI do
   def parse_section_ratios(_), do: %{}
 
   @doc "Convert YAML budget options into CommBus-compatible plan keywords."
+  @spec budget_plan_opts(keyword()) :: keyword() | nil
   def budget_plan_opts(opts) do
     opts
     |> Enum.reject(fn {_k, v} -> is_nil(v) end)

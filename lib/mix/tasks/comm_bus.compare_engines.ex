@@ -6,6 +6,14 @@ defmodule Mix.Tasks.CommBus.CompareEngines do
   alias CommBus.Template
   alias CommBus.Template.Engine.{BbMustache, ExMustache}
 
+  @doc """
+  Compares BbMustache and ExMustache template engine outputs against golden
+  fixture files, reporting matches and differences.
+
+  ## Parameters
+
+    - `_args` — Ignored.
+  """
   @impl true
   def run(_args) do
     Mix.Task.run("app.start")

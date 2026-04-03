@@ -3,6 +3,23 @@ defmodule CommBus.Budget do
 
   alias CommBus.Entry
 
+  @doc """
+  Selects entries that fit within a token budget using priority-based greedy selection.
+
+  Entries are sorted by `(priority, weight, id)` in descending order, then
+  accumulated until the token limit is reached. Entries whose `token_count`
+  would exceed the remaining budget are skipped.
+
+  ## Parameters
+
+    - `entries` — List of `%CommBus.Entry{}` structs with `token_count` populated.
+    - `limit` — Maximum number of tokens allowed.
+
+  ## Returns
+
+  A list of `%CommBus.Entry{}` structs that fit within the budget, preserving
+  the priority-based selection order.
+  """
   @spec fit_budget([Entry.t()], non_neg_integer()) :: [Entry.t()]
   def fit_budget(entries, limit) do
     entries

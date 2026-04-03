@@ -12,12 +12,52 @@ defmodule CommBus.Matcher do
               reasons: []
   end
 
+  @doc """
+  Scans conversation messages for keyword matches against triggered entries,
+  returning the entries whose keywords were found.
+
+  This is a convenience wrapper around `match_entries/3` that discards
+  match diagnostics and returns only the matched entry structs.
+
+  ## Parameters
+
+    - `messages` — List of `%CommBus.Message{}` structs (conversation history).
+    - `entries` — List of `%CommBus.Entry{}` candidates to match against.
+    - `opts` — Keyword options: `:scan_depth`, `:recency_decay`, `:semantic_adapter`.
+
+  ## Returns
+
+  A list of `%CommBus.Entry{}` structs whose keywords matched.
+  """
   @spec scan_triggers([Message.t()], [Entry.t()], keyword()) :: [Entry.t()]
   def scan_triggers(messages, entries, opts \\ []) do
     {results, _info} = match_entries(messages, entries, opts)
     Enum.map(results, & &1.entry)
   end
 
+  @doc """
+  Performs full keyword matching of entries against conversation messages,
+  returning detailed match results with scores and diagnostics.
+
+  Each triggered entry is tested against the message window using its configured
+  match strategy (`:exact`, `:fuzzy`, or `:semantic`). Constant entries pass
+  through unconditionally. Entries may be skipped due to being disabled,
+  cooldown periods, negative keyword hits, or scores below threshold.
+
+  ## Parameters
+
+    - `messages` — List of `%CommBus.Message{}` structs to scan.
+    - `entries` — List of `%CommBus.Entry{}` candidates.
+    - `opts` — Keyword options: `:scan_depth` (message window size),
+      `:recency_decay` (decay factor for older messages, default 0.9),
+      `:semantic_adapter` (module implementing `CommBus.Semantic.Adapter`).
+
+  ## Returns
+
+  A tuple of `{match_results, context}` where:
+    - `match_results` is a list of `%CommBus.Matcher.MatchResult{}` structs
+    - `context` is a map with `:messages`, `:injection_history`, and `:skipped_entries`
+  """
   @spec match_entries([Message.t()], [Entry.t()], keyword()) :: {[MatchResult.t()], map()}
   def match_entries(messages, entries, opts \\ []) do
     scan_depth = Keyword.get(opts, :scan_depth, length(messages))

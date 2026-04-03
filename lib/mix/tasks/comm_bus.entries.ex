@@ -7,6 +7,15 @@ defmodule Mix.Tasks.CommBus.Entries do
 
   alias CommBus.CLI
 
+  @doc """
+  Executes the entries listing task, parsing CLI options, resolving the storage
+  adapter, and printing matching entries to the console.
+
+  ## Parameters
+
+    - `args` — Command-line argument list.
+  """
+  @spec run([String.t()]) :: :ok
   def run(args) do
     Mix.Task.run("app.start")
 
