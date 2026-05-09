@@ -21,12 +21,10 @@ Add `comm_bus` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:comm_bus, git: "https://github.com/fosferon/comm_bus.git"}
+    {:comm_bus, "~> 0.1"}
   ]
 end
 ```
-
-> **Note:** CommBus is not yet published on Hex. Use the git dependency for now.
 
 ## Quick Start
 

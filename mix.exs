@@ -1,10 +1,12 @@
 defmodule CommBus.MixProject do
   use Mix.Project
 
+  @version "0.1.0"
+
   def project do
     [
       app: :comm_bus,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.19",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -59,6 +61,8 @@ defmodule CommBus.MixProject do
   defp docs do
     [
       main: "readme",
+      source_ref: "v#{@version}",
+      source_url_pattern: "https://github.com/fosferon/comm_bus/blob/v#{@version}/{path}#L{line}",
       extras: [
         "README.md",
         "CHANGELOG.md",
@@ -106,9 +110,7 @@ defmodule CommBus.MixProject do
         Storage: [
           CommBus.Storage,
           CommBus.Storage.InMemory,
-          CommBus.Storage.EctoAdapter,
-          CommBus.Storage.Devman,
-          CommBus.Storage.Human
+          CommBus.Storage.EctoAdapter
         ],
         Methodologies: [
           CommBus.Methodology,
