@@ -33,4 +33,8 @@ comm_bus-*.tar
 # Internal assets and agent docs
 /_assets/
 /_agents/
+.worktrees/
+.logs/
+GC-*-HANDOFF.md
 **/CLAUDE.md
+**/AGENTS.md

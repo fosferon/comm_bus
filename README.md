@@ -10,6 +10,7 @@
 - **Prompt Catalog** - Persistent_term caching with FileSystem watching for hot reloading
 - **Storage Adapters** - In-memory and Ecto, with a behaviour for custom adapters
 - **Methodologies** - YAML-based curated prompt packs for reusable workflows
+- **Classification Axes** - Generic per-entry classification dimensions (`CommBus.Axis`) carried in `Entry.metadata`
 - **Protocol Pipeline** - ALF-based assembly with llm_core integration
 - **Mix Tasks** - CLI utilities for entry inspection, budget simulation, and testing
 - **Telemetry Integration** - Built-in observability for assembly operations
@@ -21,7 +22,7 @@ Add `comm_bus` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:comm_bus, "~> 0.1"}
+    {:comm_bus, "~> 0.2"}
   ]
 end
 ```
@@ -117,6 +118,30 @@ config :comm_bus,
 {:ok, entries} = CommBus.Storage.list_entries(filters: [enabled: true])
 
 result = Assembler.assemble_prompt(conversation, entries)
+```
+
+### Classifying Entries with Axis
+
+`CommBus.Axis` lets your application declare a named per-entry dimension (with a
+value domain and default) and resolve it per entry. Values live in the existing
+`Entry.metadata` bag, so it's fully additive — untagged entries behave exactly
+as before. comm_bus ships only the mechanism; your application declares the
+vocabularies it needs.
+
+```elixir
+# Declare an axis (the vocabulary is yours — comm_bus attaches no semantics).
+CommBus.Axis.declare(:visibility, values: [:internal, :disclosed], default: :internal)
+
+# Per-entry values are carried in metadata (string keys/values from YAML work too).
+tagged   = %Entry{id: "rules", metadata: %{"visibility" => "disclosed"}}
+untagged = %Entry{id: "other"}
+
+{:ok, :disclosed} = CommBus.Axis.get(tagged, :visibility)
+{:ok, :internal}  = CommBus.Axis.get(untagged, :visibility)   # default fallback
+
+# Illegal stored values surface an error rather than being silently coerced.
+{:error, {:invalid_value, :visibility, "leaked"}} =
+  CommBus.Axis.get(%Entry{metadata: %{visibility: :leaked}}, :visibility)
 ```
 
 ### With llm_core Integration
@@ -333,6 +358,7 @@ You can implement custom storage adapters by adopting the `CommBus.Storage` beha
 - **Matcher** - Detects keyword triggers in conversation messages
 - **Budget** - Fits entries within token constraints using priority-based selection
 - **Budget.Planner** - Allocates tokens across sections (system, pre_history, history, post_history)
+- **Axis** - Generic per-entry classification dimensions, resolved from `Entry.metadata`
 - **Tokenizer** - Counts tokens (pluggable implementation)
 - **Template.Engine** - Renders Mustache templates with variable substitution
 - **Prompts** - Manages prompt catalog with caching and file watching

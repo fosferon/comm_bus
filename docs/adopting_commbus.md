@@ -125,37 +125,41 @@ mix ecto.migrate
 **Pros**: Production-ready, persistent, scales with your database
 **Cons**: Requires Ecto setup and migrations
 
-#### Option C: DevMan Adapter (SQLite)
+#### Option C: Custom Adapter
 
-Best for: Integration with DevMan workflow tool
+Best for: Applications with bespoke persistence needs or non-Ecto stores
+
+Adopt the `CommBus.Storage.EntryStore` and `CommBus.Storage.ConversationStore`
+behaviours in your own module. This is how any application — whether backed by
+SQLite, PostgreSQL, Redis, or something else — plugs its existing persistence
+layer into CommBus:
+
+```elixir
+defmodule MyApp.Storage do
+  @behaviour CommBus.Storage.EntryStore
+  @behaviour CommBus.Storage.ConversationStore
+
+  # Implement the callbacks against your own data store...
+  def store_entry(%CommBus.Entry{} = entry), do: # ...
+  def list_entries(opts), do: # ...
+  def get_entry(id), do: # ...
+  def delete_entry(id), do: # ...
+
+  def store_conversation(conversation), do: # ...
+  def load_conversation(id), do: # ...
+  def update_conversation(id, attrs), do: # ...
+end
+```
 
 ```elixir
 # config/config.exs
 config :comm_bus,
-  storage: CommBus.Storage.Devman,
-  db_path: Path.expand("~/.devman/devman.db")
+  storage: MyApp.Storage
 ```
 
-Requires DevMan SQLite schema already set up.
-
-#### Option D: HuMan Adapter (PostgreSQL)
-
-Best for: Integration with HuMan reasoning infrastructure
-
-```elixir
-# config/config.exs
-config :comm_bus,
-  storage: CommBus.Storage.Human,
-  repo: HuMan.Repo
-
-# HuMan repo configuration
-config :human, HuMan.Repo,
-  database: "human_dev",
-  hostname: "localhost",
-  pool_size: 10
-```
-
-Requires HuMan PostgreSQL schema already set up.
+For Ecto-backed stores, `CommBus.Storage.EctoAdapter` provides generic helper
+functions that concrete adapters can delegate to, so you don't reimplement the
+query/changeset plumbing.
 
 ### 3. Configure Template Engine
 
@@ -701,7 +705,7 @@ LLMChain.run(chain, messages: packet.messages)
 
 ## Next Steps
 
-- Read the [Integration Guide](integration.md) for DevMan, HuMan, and llm_core integration patterns
+- Read the [Integration Guide](integration.md) for llm_core integration patterns and custom storage adapter examples
 - Explore the [API documentation](https://hexdocs.pm/comm_bus) for detailed module references
 - Review [CHANGELOG.md](../CHANGELOG.md) for version history and updates
 

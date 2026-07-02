@@ -1,7 +1,7 @@
 defmodule CommBus.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
 
   def project do
     [
@@ -54,7 +54,8 @@ defmodule CommBus.MixProject do
         "Changelog" => "https://github.com/fosferon/comm_bus/blob/main/CHANGELOG.md"
       },
       maintainers: ["Leonidas"],
-      files: ~w(lib config .formatter.exs mix.exs README.md CHANGELOG.md LICENSE)
+      files: ~w(lib config .formatter.exs mix.exs README.md CHANGELOG.md LICENSE),
+      exclude_patterns: ["**/CLAUDE.md", "**/AGENTS.md", "**/.claude"]
     ]
   end
 
@@ -78,7 +79,8 @@ defmodule CommBus.MixProject do
           CommBus.Assembler,
           CommBus.Matcher,
           CommBus.Budget,
-          CommBus.Budget.Planner
+          CommBus.Budget.Planner,
+          CommBus.Axis
         ],
         "Data Structures": [
           CommBus.Entry,

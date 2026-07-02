@@ -7,10 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-02
+
 ### Added
 
 #### Axis
-- **`CommBus.Axis`** - Generic per-entry classification axis registry. Lets consuming applications declare a named per-entry dimension (with a value domain and a default) and resolve it per entry. Axis values are stored in the existing `CommBus.Entry.metadata/0` bag — no struct or schema change. The registry is `persistent_term`-backed (mirroring `CommBus.Protocol.SectionRoles`) with `declare/2`, `get/2`, `get!/2`, `spec/1`, `declared/0`, `delete/1`, and `reset/0`. String metadata keys/values (as loaded from yml) are normalized to the declared atom domain; illegal stored values surface as `{:error, {:invalid_value, axis, raw}}` rather than being silently coerced. Fully additive and backward compatible — no axis declared means no behavior change. comm_bus ships the mechanism only; consumers own the vocabularies.
+- **`CommBus.Axis`** - Generic per-entry classification axis registry. Lets consuming applications declare a named per-entry dimension (with a value domain and a default) and resolve it per entry. Axis values are stored in the existing `CommBus.Entry.metadata/0` bag — no struct or schema change. The registry is `persistent_term`-backed (mirroring `CommBus.Protocol.SectionRoles`) with `declare/2`, `get/2`, `get!/2`, `spec/1`, `declared/0`, `delete/1`, and `reset/0`. String metadata keys/values (as loaded from yml) are normalized to the declared atom domain; illegal stored values surface as `{:error, {:invalid_value, axis, raw}}` rather than being silently coerced. The data-plane read path uses `String.to_existing_atom/1` to guarantee out-of-domain (and potentially attacker-controlled) metadata values cannot grow the VM atom table. Fully additive and backward compatible — no axis declared means no behavior change. comm_bus ships the mechanism only; consumers own the vocabularies.
+
+### Changed
+
+#### Documentation
+- Rewrote the Integration Guide and Adoption Guide to remove references to
+  internal companion projects and to non-shipped storage adapters. Custom
+  storage integration now documents the real `CommBus.Storage.EctoAdapter`
+  plus the `CommBus.Storage.EntryStore` / `ConversationStore` behaviours that
+  any application adopts against its own data store.
+- Fixed a misleading doc comment in `CommBus.Storage.EctoAdapter` that named a
+  module not present in the package.
+- Added `CommBus.Axis` to the README and to the ExDoc module grouping.
 
 ## [0.1.0] - 2026-01-28
 

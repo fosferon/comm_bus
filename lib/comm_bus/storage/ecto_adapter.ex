@@ -8,8 +8,10 @@ defmodule CommBus.Storage.EctoAdapter do
     * `:entry_schema` - schema module with `changeset/2` (or rely on `Ecto.Changeset.change/2`)
     * `:conversation_schema` - schema module for conversations
 
-  This module does not implement the behaviours directly; instead, concrete modules
-  (e.g. `CommBus.Storage.DevMan`) delegate to it.
+  This module does not implement the behaviours directly; instead, concrete
+  adapter modules (built by consuming applications on top of their own Ecto
+  repos and schemas) delegate to it. See `CommBus.Storage.EntryStore` and
+  `CommBus.Storage.ConversationStore` for the behaviours to adopt.
   """
 
   alias CommBus.{Conversation, Entry}
