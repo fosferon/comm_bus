@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### Axis
+- **`CommBus.Axis`** - Generic per-entry classification axis registry. Lets consuming applications declare a named per-entry dimension (with a value domain and a default) and resolve it per entry. Axis values are stored in the existing `CommBus.Entry.metadata/0` bag — no struct or schema change. The registry is `persistent_term`-backed (mirroring `CommBus.Protocol.SectionRoles`) with `declare/2`, `get/2`, `get!/2`, `spec/1`, `declared/0`, `delete/1`, and `reset/0`. String metadata keys/values (as loaded from yml) are normalized to the declared atom domain; illegal stored values surface as `{:error, {:invalid_value, axis, raw}}` rather than being silently coerced. Fully additive and backward compatible — no axis declared means no behavior change. comm_bus ships the mechanism only; consumers own the vocabularies.
+
 ## [0.1.0] - 2026-01-28
 
 ### Added
