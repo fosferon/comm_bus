@@ -136,6 +136,27 @@ defmodule CommBus.AxisTest do
       assert {:error, {:invalid_value, :visibility, "leaked"}} == Axis.get(entry, :visibility)
     end
 
+    test "out-of-domain string value does NOT create a new atom (atom-table safety)" do
+      # A shared library must not grow the VM atom table on rejected input.
+      # to_existing_atom/1 guarantees the attacker-supplied value below is never
+      # interned. We assert both the error contract AND that the atom is absent.
+      bogus = "definitely_not_a_declared_visibility_atom_#{System.unique_integer([:positive])}"
+
+      refute atom_exists?(bogus)
+
+      entry = %Entry{metadata: %{"visibility" => bogus}}
+      assert {:error, {:invalid_value, :visibility, ^bogus}} = Axis.get(entry, :visibility)
+
+      # Still not interned after the rejected read.
+      refute atom_exists?(bogus)
+    end
+
+    test "in-domain string value resolves correctly via existing-atom lookup" do
+      # :internal and :disclosed were interned at declare time (in setup).
+      entry = %Entry{metadata: %{"visibility" => "disclosed"}}
+      assert {:ok, :disclosed} == Axis.get(entry, :visibility)
+    end
+
     test "unknown axis returns an error" do
       assert {:error, {:unknown_axis, :sensitivity}} == Axis.get(%Entry{}, :sensitivity)
     end
@@ -177,5 +198,13 @@ defmodule CommBus.AxisTest do
   test "no axes are declared by default — vocabularies belong to consumers" do
     # comm_bus ships the mechanism only. Fresh registry is empty.
     assert [] == Axis.declared()
+  end
+
+  # Returns true iff `string` has been interned as an atom in the VM table.
+  defp atom_exists?(string) do
+    String.to_existing_atom(string)
+    true
+  rescue
+    ArgumentError -> false
   end
 end

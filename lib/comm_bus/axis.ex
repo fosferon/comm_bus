@@ -130,7 +130,7 @@ defmodule CommBus.Axis do
   # ---------------------------------------------------------------------------
 
   @doc """
-  Returns the names of all declared axes, in declaration order.
+  Returns the names of all declared axes, sorted for determinism.
   """
   @spec declared() :: [atom()]
   def declared do
@@ -195,7 +195,13 @@ defmodule CommBus.Axis do
           {:ok, default}
 
         {:value, raw} ->
-          with {:ok, value_atom} <- normalize_value(raw),
+          # Data-plane input (metadata may come from persona yml or, for a shared
+          # library, any consumer). Use to_existing_atom/1 so an out-of-domain
+          # string value is rejected WITHOUT creating a new atom — protecting the
+          # VM atom table from unbounded growth. Declared domain values are
+          # already atoms (created once at declare/2 time), so existing-atom
+          # lookup is strictly correct for any in-domain value.
+          with {:ok, value_atom} <- to_existing_value(raw),
                :ok <- validate_membership!(value_atom, values) do
             {:ok, value_atom}
           else
@@ -291,6 +297,29 @@ defmodule CommBus.Axis do
   end
 
   defp normalize_value(_), do: {:error, :invalid_value}
+
+  # Data-plane counterpart to normalize_value/1: resolves a metadata value to
+  # an atom using the EXISTING atom table only. Used on the get/2 read path so
+  # that out-of-domain (and potentially attacker-controlled) string values are
+  # rejected without growing the atom table. Declared domain values are created
+  # at declare/2 time, so any in-domain value is guaranteed to already exist.
+  defp to_existing_value(value) when is_atom(value), do: {:ok, value}
+
+  defp to_existing_value(value) when is_binary(value) do
+    case String.trim(value) do
+      "" ->
+        {:error, :invalid_value}
+
+      trimmed ->
+        try do
+          {:ok, String.to_existing_atom(trimmed)}
+        rescue
+          ArgumentError -> {:error, :invalid_value}
+        end
+    end
+  end
+
+  defp to_existing_value(_), do: {:error, :invalid_value}
 
   defp to_atom_list(values, _label) do
     Enum.reduce_while(values, {:ok, []}, fn item, {:ok, acc} ->
